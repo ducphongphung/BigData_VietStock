@@ -1,5 +1,11 @@
 from confluent_kafka import Consumer, KafkaError
+import subprocess
+import json
+from cassandra.cluster import Cluster
 
+# Kết nối đến Cassandra
+cluster = Cluster(['localhost'])
+session = cluster.connect('stock_data')
 
 def consume_messages(consumer, topic):
     consumer.subscribe([topic])
@@ -23,11 +29,21 @@ def consume_messages(consumer, topic):
     finally:
         consumer.close()
 
+
 def process_message(message_value):
     print(f"Received message: {message_value}")
     print(type(message_value))
+    data_insert = json.loads(message_value)
+    insert_data_to_cassandra(data_insert)
 
-
+def insert_data_to_cassandra(data):
+    query = """INSERT INTO list_companies (ticker, comgroupcode, organname, organshortname, organtypecode, comtypecode, icbname, icbnamepath, sector, industry, group, subgroup, icbcode) 
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+    session.execute(query, (data['ticker'], data['comGroupCode'], data['organName'], data['organShortName'],
+                            data['organTypeCode'], data['comTypeCode'], data['icbName'], data['icbNamePath'],
+                            data['sector'], data['industry'], data['group'], data['subgroup'],
+                            data['icbCode']))
+    print("Sent data to Cassandra successfully")
 
 def main():
     kafka_config = {
@@ -40,6 +56,7 @@ def main():
     consumer = Consumer(kafka_config)
 
     consume_messages(consumer, kafka_topic)
+
 
 if __name__ == '__main__':
     main()
