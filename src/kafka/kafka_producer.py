@@ -6,19 +6,6 @@ from kafka import KafkaProducer
 from vnstock import *
 import warnings
 
-# def crawl_vnstock():
-#     df_company = listing_companies()
-#     df_company.to_csv(
-#         './src/kafka/list_companies.csv', index=False)
-#     df_ratio = company_fundamental_ratio(symbol=df_company['ticker'][0], mode='simplify', missing_pct=0.8)
-#     n = len(df_company['ticker'])
-#     for i in range(1, n):
-#         df = company_fundamental_ratio(symbol=df_company['ticker'][i], mode='simplify', missing_pct=0.8)
-#         df_ratio = pd.concat([df_ratio, df])
-#
-#     df_ratio.to_csv(
-#         './src/kafka/company_fundamental_ratio.csv', index=False)
-
 def delivery_report(err, msg):
     if err is not None:
         print('Message delivery failed: {}'.format(err))
@@ -40,11 +27,11 @@ def produce_messages(producer, topic, data):
 
 def main():
     kafka_config = {
-        'bootstrap.servers': 'kafka1:9092,kafka2:9093,kafka3:9094',
+        'bootstrap.servers': 'localhost:9092, localhost:9093, localhost:9094',
         'client.id': 'python-producer'
     }
 
-    kafka_topic = 'vnstock-data'
+    kafka_topic = 'stock-data'
     producer = Producer(kafka_config)
 
     csv_file_path = 'D:\Java\Bigdata\BigData_VietStock\out.csv'

@@ -14,7 +14,7 @@ docopt
 filelock
 flake8
 geomet == 0.1.2
-hdfs
+pyhdfs
 hyperlink
 idna
 incremental
